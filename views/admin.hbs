@@ -89,11 +89,9 @@
           <h5 id="match-area-selectdisplay-list"></h5>
           <div class="form-group">
             <select multiple class="form-control mb-3" id="match-area-selectdisplay">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
             </select>
             <button id="match-area-selectdisplay-confirm" class="btn btn-success">确认</button>
+            <button id="match-area-selectdisplay-clear" class="btn btn-danger">清空</button>
           </div>
         </div>
       </li>
@@ -237,7 +235,6 @@
         event.preventDefault();
         var id = Number($('#register-candidate-form-id').val());
         var name = $('#register-candidate-form-name').val();
-        console.log(id, name);
         $.ajax({
           method: 'PUT',
           url: '/admin/candidate',
@@ -333,12 +330,27 @@
       });
 
       $('#match-area-selectdisplay-confirm').click(() => {
-        var candidates = $('#match-area-selectdisplay').val();
+        var candidates = []
+        candidates = candidates.concat($('#match-area-selectdisplay').val());
+        if (candidates.length === 0) {
+          candidates = '';
+        }
         $.ajax({
           method: 'POST',
           url: '/admin/candidate/setdisplay',
           dataType: 'json',
           data: { candidates }
+        }).done(data => {
+          $('#match-area-selectdisplay-list').text(data);
+        });
+      });
+
+      $('#match-area-selectdisplay-clear').click(() => {
+        $.ajax({
+          method: 'POST',
+          url: '/admin/candidate/setdisplay',
+          dataType: 'json',
+          data: { candidates: null }
         }).done(data => {
           $('#match-area-selectdisplay-list').text(data);
         });

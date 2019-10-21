@@ -16,7 +16,6 @@ class SingleMatch {
 	}
 
 	setCandidatesToDisplay(candidates) {
-		console.log(candidates);
 		this.candidatesToDisplay = candidates;
 	}
 
