@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>KWCSSA Voting 2019</title>
+</head>
+
+<body>
+  <div>
+    <h1>Draw</h1>
+    <h3 id="draw-area">
+    </h3>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    var state = 0;
+
+    var drawingInterval = null;
+    function drawingEffect(target) {
+      var fakeNumbers = [
+        '226***4587',
+        '229***1234',
+        '226***5432',
+        '519***4524',
+        '226***4587',
+        '226***5324',
+        '226***4387',
+        '617***3877',
+        '647***1387',
+        '226***0123',
+        '778***6720',
+        '226***9432',
+        '519***0913',
+        '226***7615',
+        '778***4923',
+        '519***9034',
+        '647***9708'
+      ]
+      var index = -1;
+      drawingInterval = setInterval(() => {
+        index += 1;
+        if (index === fakeNumbers.length) {
+          index = 0;
+        }
+        $(target).text(fakeNumbers[index]);
+      }, 20);
+    }
+
+    function updateState() {
+      $.ajax({
+        method: 'GET',
+        url: '/draw/state'
+      }).done(data => {
+        switch (data.state) {
+          case 0: {
+            if (state !== 0) {
+              console.log('Change state to', data.state);
+              state = 0;
+              clearInterval(drawingInterval);
+              $.ajax({
+                method: 'GET',
+                url: '/draw/result'
+              }).done(data => {
+                var winnerNumber = '';
+                for (let i = 0; i < 10; ++i) {
+                  if (i >= 3 && i <= 5) {
+                    winnerNumber += '*';
+                  } else {
+                    winnerNumber += data.winner[i];
+                  }
+                }
+                $('#draw-area').text(winnerNumber);
+              });
+            }
+            break;
+          }
+          case 1: {
+            if (state !== 1) {
+              console.log('Change state to', data.state);
+              state = 1;
+              drawingEffect('#draw-area');
+            }
+            break;
+          }
+          case 2: {
+            if (state !== 2) {
+              console.log('Change state to', data.state);
+              state = 2;
+            }
+            break;
+          }
+          default: break;
+        }
+      });
+    }
+
+    $(window).on('load', () => {
+      setInterval(() => {
+        updateState();
+      }, 100);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>KWCSSA Voting 2019</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+    integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+
+  <style>
+    .wrapper {}
+  </style>
+</head>
+
+<body>
+  <div class="wrapper container">
+    <ul class="list-group mt-3 mb-5">
+      <li class="list-group-item">
+        <form action="/logout" method="get" class="d-flex justify-content-center">
+          <button class="btn btn-danger w-50">Log out</button>
+        </form>
+      </li>
+      <li class="list-group-item">
+        <form id="register-audience-form" action="javascript:void(0)" class="">
+          <div class="form-group">
+            <label for="Add audience">Add audience: </label>
+            <input type="text" class="form-control" id="register-audience-form-number" name="number" maxlength="10"
+              minlength="10" placeholder="Phone number">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <small class="form-text" id="register-audience-form-message"></small>
+        </form>
+      </li>
+      <li class="list-group-item">
+        <div id="draw-area" class="">
+          <h3>Draw a winner</h3>
+          <h4 id="draw-area-result">0000000000</h4>
+          <div id="draw-area-buttons">
+            <button id="draw-area-button-start" class="btn btn-success">Start</button>
+            <button id="draw-area-button-end" class="btn btn-danger">End</button>
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item">
+        <form id="register-candidate-form" action="javascript:void(0)" class="">
+          <label for="Add candidate">Add candidate: </label>
+          <div class="form-group">
+            <input type="text" class="form-control" id="register-candidate-form-id" placeholder="Candidate ID">
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" id="register-candidate-form-name" placeholder="Candidate Name">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <small class="form-text" id="register-candidate-form-message"></small>
+        </form>
+      </li>
+      <li class="list-group-item">
+        <h3>Match Area</h3>
+        <ul id="candidate-list" class="list-group mb-4 mt-4"></ul>
+        <div id="addvote-area" class="mb-4">
+          <h4>调整票数</h4>
+          <div class="form-group">
+            <select class="form-control" id="addvote-area-candidates">
+            </select>
+          </div>
+          <div class="form-group">
+            <input class="form-control" id="addvote-area-votes" placeholder="票数" />
+          </div>
+          <button id="addvote-area-btn-add" class="btn btn-danger">添加以上票数</button>
+          <button id="addvote-area-btn-update" class="btn btn-danger">替换为以上票数</button>
+        </div>
+        <div id="match-area">
+          <h4 class="d-flex mb-3">
+            比赛状态：
+            <div id="match-status">停止投票</div>
+          </h4>
+          <div class="form-group">
+            <select class="form-control" id="match-area-candidates">
+            </select>
+          </div>
+          <button id="match-area-start" class="btn btn-success">开始投票</button>
+          <button id="match-area-end" class="btn btn-danger">停止投票</button>
+          <h4 class="mt-4">
+            展示以下选手票数：
+          </h4>
+          <h5 id="match-area-selectdisplay-list"></h5>
+          <div class="form-group">
+            <select multiple class="form-control mb-3" id="match-area-selectdisplay">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <button id="match-area-selectdisplay-confirm" class="btn btn-success">确认</button>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"></script>
+    <script>
+      // Logic after page load
+      function updateCandidateList(updateAddvote) {
+        $.ajax({
+          method: 'GET',
+          url: '/candidates',
+        }).done(data => {
+          if (updateAddvote) {
+            $('#addvote-area-candidates').empty();
+          }
+          $('#candidate-list').empty();
+          $('#match-area-candidates').empty();
+          $('#match-area-selectdisplay').empty();
+          $('#match-area-selectdisplay').attr('size', data.length);
+          data.forEach(candidate => {
+            if (updateAddvote) {
+              $('#addvote-area-candidates').append(`
+              <option>${candidate.id}-${candidate.name}</option>
+            `);
+            }
+            $('#candidate-list').append(`
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-2">${candidate.id}</div>
+                  <div class="col-8">${candidate.name}</div>
+                  <div class="col-2">${candidate.vote}</div>
+                </div>
+              </li>
+            `);
+            $('#match-area-candidates').append(`
+              <option>${candidate.id}-${candidate.name}</option>
+            `);
+            $('#match-area-selectdisplay').append(`
+              <option>${candidate.id}-${candidate.name}</option>
+            `);
+          });
+        })
+      }
+      $(window).on('load', () => {
+        updateCandidateList(true);
+      });
+    </script>
+    <script type="text/javascript">
+      // Add audience logic
+      $('#register-audience-form').submit((event) => {
+        event.preventDefault();
+        var number = Number($('#register-audience-form').serializeArray()[0].value);
+        $.ajax({
+          method: 'PUT',
+          url: '/admin/register',
+          dataType: 'json',
+          data: {
+            "number": number
+          }
+        }).done(data => {
+          if (data.error === null) {
+            $('#register-audience-form-number').val('');
+            $('#register-audience-form-message').text('Success! Phone number registered');
+            $('#register-audience-form-message').css({ color: 'green' });
+          } else {
+            $('#register-audience-form-message').text(data.error);
+            $('#register-audience-form-message').css({ color: 'red' });
+          }
+        });
+      });
+    </script>
+    <script type="text/javascript">
+      //Draw winner logic
+      var drawingInterval = null;
+      function drawingEffect(target) {
+        var fakeNumbers = [
+          '226***4587',
+          '229***1234',
+          '226***5432',
+          '519***4524',
+          '226***4587',
+          '226***5324',
+          '226***4387',
+          '617***3877',
+          '647***1387',
+          '226***0123',
+          '778***6720',
+          '226***9432',
+          '519***0913',
+          '226***7615',
+          '778***4923',
+          '519***9034',
+          '647***9708'
+        ]
+        var index = -1;
+        drawingInterval = setInterval(() => {
+          index += 1;
+          if (index === fakeNumbers.length) {
+            index = 0;
+          }
+          $(target).text(fakeNumbers[index]);
+        }, 20);
+      }
+
+      $('#draw-area-button-start').click(() => {
+        $.ajax({
+          method: 'POST',
+          url: '/admin/draw/start'
+        }).done(data => {
+          drawingEffect('#draw-area-result');
+        });
+      });
+      $('#draw-area-button-end').click(() => {
+        $.ajax({
+          method: 'POST',
+          url: '/admin/draw/end'
+        }).done(data => {
+          $.ajax({
+            method: 'GET',
+            url: '/draw/result'
+          }).done(data => {
+            clearInterval(drawingInterval);
+            $('#draw-area-result').text(data.winner);
+          });
+        });
+      });
+    </script>
+    <script>
+      // Add candidate logic
+      $('#register-candidate-form').submit((event) => {
+        event.preventDefault();
+        var id = Number($('#register-candidate-form-id').val());
+        var name = $('#register-candidate-form-name').val();
+        console.log(id, name);
+        $.ajax({
+          method: 'PUT',
+          url: '/admin/candidate',
+          dataType: 'json',
+          data: { id, name }
+        }).done(data => {
+          if (data.error === null) {
+            updateCandidateList(true);
+            $('#register-candidate-form-id').val('');
+            $('#register-candidate-form-name').val('');
+            $('#register-candidate-form-message').text('Success! Candidate registered');
+            $('#register-candidate-form-message').css({ color: 'green' });
+          } else {
+            $('#register-candidate-form-message').text(data.error);
+            $('#register-candidate-form-message').css({ color: 'red' });
+          }
+        });
+      });
+    </script>
+    <script>
+      // Manual vote change logic
+      $('#addvote-area-btn-add').click(() => {
+        var candidate = $('#addvote-area-candidates').val();
+        var id = candidate.split('-')[0];
+        var votes = $('#addvote-area-votes').val();
+        $.ajax({
+          method: 'POST',
+          url: '/admin/candidate/addvote',
+          dataType: 'json',
+          data: { id, votes }
+        }).done(data => {
+          updateCandidateList(false);
+        });
+      });
+      $('#addvote-area-btn-update').click(() => {
+        var candidate = $('#addvote-area-candidates').val();
+        var id = candidate.split('-')[0];
+        var votes = $('#addvote-area-votes').val();
+        $.ajax({
+          method: 'POST',
+          url: '/admin/candidate/setvote',
+          dataType: 'json',
+          data: { id, votes }
+        }).done(data => {
+          updateCandidateList(false);
+        });
+      });
+    </script>
+    <script>
+      // Match logic
+      var updateInterval = null;
+      function updateVoteCount() {
+        $.ajax({
+          method: 'GET',
+          url: '/candidates'
+        }).done(data => {
+          $('#candidate-list').empty();
+          data.forEach(candidate => {
+            $('#candidate-list').append(`
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-2">${candidate.id}</div>
+                  <div class="col-8">${candidate.name}</div>
+                  <div class="col-2">${candidate.vote}</div>
+                </div>
+              </li>
+            `);
+          });
+        });
+      }
+      $('#match-area-start').click(() => {
+        var candidate = $('#match-area-candidates').val();
+        $.ajax({
+          method: 'POST',
+          url: '/admin/match/start',
+          dataType: 'json',
+          data: { candidate }
+        }).done(data => {
+          $('#match-status').text(`投票进行中：${candidate}`);
+          updateInterval = setInterval(() => {
+            updateVoteCount();
+          }, 100);
+        });
+      });
+      $('#match-area-end').click(() => {
+        $.ajax({
+          method: 'POST',
+          url: '/admin/match/end'
+        }).done(data => {
+          $('#match-status').text('停止投票');
+          clearInterval(updateInterval);
+        });
+      });
+
+      $('#match-area-selectdisplay-confirm').click(() => {
+        var candidates = $('#match-area-selectdisplay').val();
+        $.ajax({
+          method: 'POST',
+          url: '/admin/candidate/setdisplay',
+          dataType: 'json',
+          data: { candidates }
+        }).done(data => {
+          $('#match-area-selectdisplay-list').text(data);
+        });
+      });
+    </script>
+</body>
+
+</html>
