@@ -9,10 +9,6 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
     integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
 
-
-  <style>
-    .wrapper {}
-  </style>
 </head>
 
 <body>
@@ -24,15 +20,9 @@
         </form>
       </li>
       <li class="list-group-item">
-        <form id="register-audience-form" action="javascript:void(0)" class="">
-          <div class="form-group">
-            <label for="Add audience">Add audience: </label>
-            <input type="text" class="form-control" id="register-audience-form-number" name="number" maxlength="10"
-              minlength="10" placeholder="Phone number">
-          </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-          <small class="form-text" id="register-audience-form-message"></small>
-        </form>
+        <div class="d-flex justify-content-center">
+          <button id="access-register-audience" class="btn btn-primary w-50">Register Audience</button>
+        </div>
       </li>
       <li class="list-group-item">
         <div id="draw-area" class="">
@@ -150,27 +140,8 @@
       });
     </script>
     <script type="text/javascript">
-      // Add audience logic
-      $('#register-audience-form').submit((event) => {
-        event.preventDefault();
-        var number = Number($('#register-audience-form').serializeArray()[0].value);
-        $.ajax({
-          method: 'PUT',
-          url: '/admin/register',
-          dataType: 'json',
-          data: {
-            "number": number
-          }
-        }).done(data => {
-          if (data.error === null) {
-            $('#register-audience-form-number').val('');
-            $('#register-audience-form-message').text('Success! Phone number registered');
-            $('#register-audience-form-message').css({ color: 'green' });
-          } else {
-            $('#register-audience-form-message').text(data.error);
-            $('#register-audience-form-message').css({ color: 'red' });
-          }
-        });
+      $('#access-register-audience').on('click', () => {
+        window.location.href = "/admin/register"
       });
     </script>
     <script type="text/javascript">

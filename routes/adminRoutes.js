@@ -6,6 +6,10 @@ module.exports = (app, drawObj, Match) => {
 		res.render('admin');
 	});
 
+	app.get('/admin/register', (req, res) => {
+		res.render('register');
+	});
+
 	app.put('/admin/register', async (req, res) => {
 		var { number } = req.body;
 		var result = await AudienceHelper.newAudience(number);

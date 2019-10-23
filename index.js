@@ -45,7 +45,7 @@ passport.deserializeUser((id, callback) => {
 if (process.env.NODE_ENV === 'production') {
 	mongoose.connect(
 		`mongodb://${process.env.ADMIN_USERNAME}:${process.env
-			.ADMIN_PASSWORD}@vote19.ituwcssa.com:27017/voting-system-2019?authSource=admin`,
+			.ADMIN_DBPASS}@vote19.ituwcssa.com:27017/voting-system-2019?authSource=admin`,
 		{
 			useNewUrlParser: true,
 			useUnifiedTopology: true
