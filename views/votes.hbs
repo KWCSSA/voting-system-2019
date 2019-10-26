@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>KWCSSA Voting 2019</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+    integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+  <style>
+    .wrapper {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+    }
+
+    canvas {
+      width: 1300px !important;
+      height: 600px !important;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: white;
+    }
+
+    body{
+      background-color: black;
+    }
+
+    #title{
+      color: orange;
+      text-align: center;
+    }
+
+    text {
+      text-color: white;
+    }
+  </style>
+  <script type="text/javascript">
+    var displayedCandidates = [];
+    var displayedVotes = [];
+    var plotCandidates = [];
+    var plotVotes = [];
+    var chartCreated = false;
+    var plotColors = [];
+    
+    var votingChart;
+
+    const font_size = 30;
+    const font_family = "Calibri";
+
+    function getAllDisplayedCandidates () {
+      $.ajax({
+        method: 'GET',
+        url: '/displaycandidates'
+      }).done(data => {
+        displayedCandidates = data;
+      })
+    }
+
+    function updateCandidates (){
+      $.ajax({
+        method: 'GET',
+        url: '/candidates'
+      }).done(data => {
+        for (var i = 0; i < data.length; i++){
+          var match = data[i]["id"] + "-" + data[i]["name"];
+          for (var j = 0; j < displayedCandidates.length; j++){
+            if (match === displayedCandidates[j]){
+              var added = false;
+              for (var k = 0; k < displayedVotes.length; k++){
+                if (displayedVotes[k] && displayedVotes[k]["name"] == data[i]["name"]) {
+                  added = true;
+                  plotVotes[k] = data[k]["vote"];
+                }
+              }
+
+              if (added === false){
+                displayedVotes.push(data[i]);
+                plotCandidates.push(data[i]["name"]);
+                plotVotes.push(data[i]["vote"]);
+                plotColors.push(getRandomColor());
+              }
+            }
+          }
+        }
+      }).done(() => {
+        if (chartCreated == false){
+          chartCreated = true;
+          plotVotes.push(1);
+          Chart.defaults.global.defaultFontFamily = font_family;
+          votingChart = new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+              labels: plotCandidates,
+              datasets: [
+                {
+                  label: "票数",
+                  data: plotVotes,
+                  backgroundColor: plotColors
+                }
+              ]
+            },
+            options: {
+              legend: { 
+                display: false,
+                labels:{
+                  fontFamily: "Arial"
+                }
+              },
+              title: {
+                display: false,
+                text: '投票结果'
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  xAxes: [{
+                      gridLines: {
+                          display:false
+                      },
+                      ticks: {
+                        fontSize: font_size
+                      }
+                  }],
+                  yAxes: [{
+                      gridLines: {
+                          drawBorder: false,
+                          display:false
+                      },
+                      ticks: {
+                        display: false,
+                        suggestedMax: Math.max(...plotVotes) * 1.5
+                      },
+                      beginAtZero: true,
+                  }]
+              },
+              animation: {
+                onComplete: function () {
+                  var chartInstance = this.chart;
+                  var ctx = chartInstance.ctx;
+                  var height = chartInstance.controller.boxes[0].bottom;
+                  ctx.textAlign = "center";
+                  Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    Chart.helpers.each(meta.data.forEach(function (bar, index) {
+                      ctx.font = "30px Calibri";
+                      ctx.fillText(dataset.data[index], bar._model.x, height - ((height - bar._model.y) / 2));
+                    }),this)
+                  }),this);
+                }
+              }
+            }
+          });
+        } else {
+          console.log(displayedVotes, plotCandidates, plotVotes);
+          updateChart(votingChart, plotVotes);
+        }
+      });
+    }
+
+    function getRandomColor() {
+      var letters = '0123456789ABCDEF'.split('');
+      var color = '#';
+      for (var i = 0; i < 6; i++ ) {
+          color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function updateChart(chart, data){
+      chart.update();
+    }
+
+    getAllDisplayedCandidates();
+    updateCandidates();
+    var timer = setInterval(function () {
+        updateCandidates();
+      }, 3000);
+
+  </script>
+</head>
+
+<body>
+    <div>
+        <h1 id="title">Voting Results</h1>
+    </div>
+    {{!-- <div id="chart-container" style="position: relative; width: 1000; height: 1000;"> --}}
+      <canvas id="bar-chart"></canvas>
+    {{!-- </div> --}}
+</body>
+
+</html>

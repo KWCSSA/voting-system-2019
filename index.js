@@ -108,6 +108,8 @@ require('./routes/adminRoutes')(app, drawObj, Match);
 
 require('./routes/drawRoutes')(app, drawObj);
 
+require('./routes/votingResult.js')(app, drawObj);
+
 const CandidateHelper = require('./utils/CandidateHelper');
 
 app.get('/candidates', async (req, res) => {
