@@ -9,13 +9,19 @@
 </head>
 
 <body>
-  <div>
-    <h1 id="title">Draw Results</h1>
+  <div class="wrapper">
+    <image class="banner" src="/banner.jpg" alt="logo" />
     <div id="draw-area"></div>
   </div>
   <style>
     body {
-      background-color: white;
+      background-color: #000;
+    }
+
+    .wrapper {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
     }
 
     #title {
@@ -24,9 +30,13 @@
     }
 
     #draw-area {
-      font-size: 100px;
+      margin-top: 50px;
+      font-size: 120px;
       color: orange;
-      text-align: center;
+    }
+
+    .banner {
+      width: 500px;
     }
   </style>
 

@@ -304,7 +304,7 @@
         var candidates = []
         candidates = candidates.concat($('#match-area-selectdisplay').val());
         if (candidates.length === 0) {
-          candidates = '';
+          candidates = null;
         }
         $.ajax({
           method: 'POST',
@@ -321,7 +321,7 @@
           method: 'POST',
           url: '/admin/candidate/setdisplay',
           dataType: 'json',
-          data: { candidates: null }
+          data: { clear: true }
         }).done(data => {
           $('#match-area-selectdisplay-list').text(data);
         });

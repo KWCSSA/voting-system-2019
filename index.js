@@ -64,6 +64,7 @@ db.once('open', () => {
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.use(express.static('static'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set('trust proxy', 1);
@@ -108,8 +109,6 @@ require('./routes/adminRoutes')(app, drawObj, Match);
 
 require('./routes/drawRoutes')(app, drawObj);
 
-require('./routes/votingResult.js')(app, drawObj);
-
 const CandidateHelper = require('./utils/CandidateHelper');
 
 app.get('/candidates', async (req, res) => {
@@ -126,6 +125,10 @@ app.get('/curcandidate', async (req, res) => {
 app.get('/displaycandidates', async (req, res) => {
 	var candidates = await Match.getCandidatesToDisplay();
 	res.send(candidates);
+});
+
+app.get('/votes', (req, res) => {
+	res.render('votes');
 });
 
 const TwilioHelper = require('./utils/TwilioHelper');

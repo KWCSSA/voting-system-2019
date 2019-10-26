@@ -48,10 +48,10 @@ module.exports = (app, drawObj, Match) => {
 	});
 
 	app.post('/admin/candidate/setdisplay', async (req, res) => {
-		if (req.body.candidates === '') {
+		if (req.body.clear) {
 			await Match.setCandidatesToDisplay([]);
 		} else {
-			await Match.setCandidatesToDisplay(req.body['candidates[]']);
+			await Match.setCandidatesToDisplay([].concat(req.body['candidates[]']));
 		}
 		res.send(Match.getCandidatesToDisplay());
 	});
