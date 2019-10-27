@@ -4,7 +4,7 @@
 	"description": "KWCSSA voting system 2019",
 	"main": "index.js",
 	"scripts": {
-		"start": "nodemon index.js",
+		"start": "NODE_ENV=production node index.js",
 		"dev": "nodemon index.js",
 		"pm2": "NODE_ENV=production pm2 start index.js --name voting-idol-19"
 	},
@@ -12,9 +12,7 @@
 		"type": "git",
 		"url": "git+https://github.com/KWCSSA/voting-system-2019.git"
 	},
-	"keywords": [
-		"KWCSSA"
-	],
+	"keywords": [ "KWCSSA" ],
 	"author": "Terry Wang",
 	"license": "MIT",
 	"bugs": {

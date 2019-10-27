@@ -40,7 +40,7 @@
       var number = Number($('#register-audience-form').serializeArray()[0].value);
       $.ajax({
         method: 'PUT',
-        url: '/admin/register',
+        url: '/register',
         dataType: 'json',
         data: {
           "number": number
@@ -55,9 +55,6 @@
           $('#register-audience-form-message').css({ color: 'red' });
         }
       });
-    });
-    $('#access-register-audience').on('click', () => {
-      window.location.href = "/admin/register"
     });
   </script>
 </body>

@@ -85,6 +85,9 @@
           </div>
         </div>
       </li>
+      <li class="list-group-item">
+        <ul id="log-area" class="list-group-item" style="height: 400px; overflow-y: scroll;">Log</ul>
+      </li>
     </ul>
 
 
@@ -141,7 +144,7 @@
     </script>
     <script type="text/javascript">
       $('#access-register-audience').on('click', () => {
-        window.location.href = "/admin/register"
+        window.location.href = "/register"
       });
     </script>
     <script type="text/javascript">
@@ -326,6 +329,35 @@
           $('#match-area-selectdisplay-list').text(data);
         });
       });
+    </script>
+    <script>
+      // Log area logic
+      var logs = [];
+      updateLog();
+      function updateLog() {
+        $.ajax({
+          method: 'GET',
+          url: '/admin/logs'
+        }).done(data => {
+          if (JSON.stringify(logs) !== JSON.stringify(data)) {
+            console.log('Update Log');
+            logs = data;
+            $('#log-area').empty();
+            for (let log of logs.split('\n')) {
+              if (log !== '') {
+                var color = 'darkgreen';
+                if (log.split(' ')[2] === 'error:') {
+                  color = 'darkred';
+                }
+                $('#log-area').append(`<li style="color: ${color}">${log}</li>`);
+              }
+            }
+            var logDiv = document.getElementById("log-area");
+            logDiv.scrollTop = logDiv.scrollHeight;
+          }
+        });
+      };
+      setInterval(() => updateLog(), 1000);
     </script>
 </body>
 

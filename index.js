@@ -110,10 +110,21 @@ require('./routes/adminRoutes')(app, drawObj, Match);
 require('./routes/drawRoutes')(app, drawObj);
 
 const CandidateHelper = require('./utils/CandidateHelper');
+const AudienceHelper = require('./utils/AudienceHelper');
+
+app.get('/register', (req, res) => {
+	res.render('register');
+});
+
+app.put('/register', async (req, res) => {
+	var { number } = req.body;
+	var result = await AudienceHelper.newAudience(number);
+	res.send(result);
+});
 
 app.get('/candidates', async (req, res) => {
 	var candidates = await CandidateHelper.getAllCandidates();
-	candidates.sort((a, b) => a.id > b.id);
+	candidates.sort((a, b) => a.id - b.id);
 	res.send(candidates);
 });
 
@@ -127,8 +138,12 @@ app.get('/displaycandidates', async (req, res) => {
 	res.send(candidates);
 });
 
-app.get('/votes', (req, res) => {
-	res.render('votes');
+// app.get('/votes', (req, res) => {
+// 	res.render('votes');
+// });
+
+app.get('/result', (req, res) => {
+	res.render('result');
 });
 
 const TwilioHelper = require('./utils/TwilioHelper');

@@ -1,19 +1,11 @@
+const fs = require('fs');
+
 const AudienceHelper = require('../utils/AudienceHelper');
 const CandidateHelper = require('../utils/CandidateHelper');
 
 module.exports = (app, drawObj, Match) => {
 	app.get('/admin', (req, res) => {
 		res.render('admin');
-	});
-
-	app.get('/admin/register', (req, res) => {
-		res.render('register');
-	});
-
-	app.put('/admin/register', async (req, res) => {
-		var { number } = req.body;
-		var result = await AudienceHelper.newAudience(number);
-		res.send(result);
 	});
 
 	app.post('/admin/draw/start', async (req, res) => {
@@ -65,5 +57,10 @@ module.exports = (app, drawObj, Match) => {
 	app.post('/admin/match/end', async (req, res) => {
 		Match.stopVoting();
 		res.send({ state: Match.getState() });
+	});
+
+	app.get('/admin/logs', async (req, res) => {
+		var log = await fs.readFileSync(__dirname + '/../logs/sysInfo.log', 'utf-8');
+		res.send(log);
 	});
 };
