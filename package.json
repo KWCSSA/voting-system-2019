@@ -21,7 +21,7 @@
 	"homepage": "https://github.com/KWCSSA/voting-system-2019#readme",
 	"dependencies": {
 		"body-parser": "^1.19.0",
-		"chart.js": "^2.9.0",
+		"chart.js": "^2.9.4",
 		"connect-ensure-login": "^0.1.1",
 		"connect-mongo": "^3.0.0",
 		"dotenv": "^8.1.0",
